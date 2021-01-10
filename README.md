@@ -213,14 +213,16 @@ OBS: --name designa o nome do node, --hostname designa o nome da máquina, --net
 
 OBS: verifique se os nomes das máquinas não estão em duplicidade, se as portas não estão em uso, se a box utilizada está correta, se a pasta que vai armazenar os nodes existe e possui permissão de escrita e leitura, se o parâmetro --insecure está sendo utilizado e se o comando está sendo executado como administrador.
 
-ADICIONAR VARIÁVEIS DE AMBIENTE ZONEINFO) - WINDOWS
+## 4.1.2.2 ADICIONAR VARIÁVEIS DE AMBIENTE ZONEINFO (WINDOWS)
 
 Pode ser necessário adicionar esse arquivo para que o os nós iniciem normalmente. Para isso, realize os seguintes passos (Windows 10):
 
 Baixar o arquivo ZONEINFO no seguinte link:
 https://www.cockroachlabs.com/docs/dev/known-limitations.html#location-based-time-zone-names
+
 Para adicionar esse arquivo dentro das variáveis de ambiente, siga este caminho (Windows 10):
-Sistema 🡪 Variáveis de ambiente 🡪 novo 🡪 Adicionar um nome e o arquivo e salvar. Caso seja necessário, reinicie a máquina.
+Sistema 🡪 Variáveis de ambiente 🡪 novo 🡪 Adicionar um nome e o arquivo e salvar.
+Caso seja necessário, reinicie a máquina.
 
 ## 4.1.2.2 INICIANDO OS NÓS
 
@@ -240,7 +242,7 @@ OBS2: é possível iniciar os nós manualmente caso tenha problemas no Windows 1
 Com os comandos executados corretamente, é possível verificar através do Docker que os nodes estão funcionando ou pelo navegador, acessando a “http:addr”.
 
 
-## 4.1.3 IMPORTAR OS DADOS (da máquina local para o docker)
+## 4.1.3 IMPORTAÇÃO DOS DADOS
 
 ## 4.1.3.1 IMPORTAR OS DADOS DA MÁQUINA LOCAL PARA O DOCKER
 
@@ -741,13 +743,18 @@ Para popular o Banco de Dados utilizar o Script disponível no anexo.
 
 Instalar minikube através do seguinte link:
 https://minikube.sigs.k8s.io/docs/start/
-Pode ser necessário instalar o Hyper V para que tudo funcione normalmente. Para fazer isso, realize o seguinte commando:
+Pode ser necessário instalar o Hyper V para que tudo funcione normalmente. Para fazer isso, realize o seguinte comando:
 
+```bash
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V –All
+```
 
 Depois disso, reinicie a máquina e execute o seguinte comando (como administrador):
 
+```bash
 minikube start --no-vtx-check --alsologtostderr
+```
+
 OBS: O parâmetro --no-vtx-check pula a etapa de verificação de compatibilidade com o VTX da inter e o parâmetro --alsologtostderr exibe o log completo com todas as etapas realizadas na inicialização do contâiner. Pode ser útil caso seja necessário procurar por algum erro.
 OBS2: Caso a instalação de erro, será necessário reiniciar a instalação. Primeiro é necessário deletar a vm que foi criada com o seguinte comando:
 
@@ -855,7 +862,6 @@ kubectl get pods
 
 Ao utilizar o comando, será possível perceber que os 2 últimos pods estão sendo encerrados. Isso acontece pois agora a quantidade mínima de réplicas são de apenas 3, e como o banco nao precisa das 5 réplicas para funcionar normalmente, as 2 réplicas que estão sobrando são excluídas automaticamente.
 
-
 ## 5.2 SQL SERVER
 
 Instalar pacotes necessários para que o Docker engine funcione corretamente:
@@ -940,20 +946,17 @@ sed -r ‘s/^#(.*drbdctrl-vg.*)$/\1/’ -i /etc/drbdmanaged.cfg
 sed ‘s/drbdpool/containersData\n/g’ -i /etc/drbdmanaged.cfg
 ```
 
-
 Criar partição primária na segunda unidade de disco:
 
 ```bash
 pvcreate /dev/sdb1
 ```
 
-
 Criar um volume físico e um volume lógico chamado containersData:
 
 ```bash
 vgcreate containersData /dev/sdb1
 ```
-
 
 Criar um par de chaves para permitir comunicação via SSH:
 
@@ -1052,7 +1055,6 @@ systemctl start docker-drbdmanage-plugin
 systemctl status docker-drbdmanage-plugin
 ```
 
-
 Criar um volume de dados (containernode01):
 
 ```bash
@@ -1104,57 +1106,59 @@ docker exec -it SQLServer01 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P#Ad
 
 ACID é a sigla utilizada para expressar um conjunto de propriedades de transação em banco de dados, como Atomicidade, Consistência, Isolamento e Durabilidade, do inglês: Atomicity, Consistency, Isolation, Durability.
 
-
-
 ## 6.1 COCKROACHDB
 
+Testar Atomicidade:
 
-Testar Atomicidade
+```bash
 Begin Transaction
 INSERT INTO Shippers VALUES (100, “Boituva”, 551533333333);
 UPDATE Shippers set phone = 5515666666666 where shipperID = 100;
 COMMIT
+```
 
+Testar Durabilidade:
 
-Testar Durabilidade
+```bash
 SELECT *FROM Shippers;
+```
 
 ## 6.2 SQL SERVER
 
-
 Atomicidade
 
-select * from categories;
+```bash
+SELECT * from categories;
 insert into categories values (1,'Fish','Fish','\x');
-
+```
 
 Consistência
 
-select * from customers;
+```bash
+SELECT * from customers;
 delete from customers
 where customer_id = 'ALFKI';
+```
 
 
 Isolamento e Durabilidade
 
-select * from shippers;
+```bash
+SELECT * from shippers;
 delete from shippers
 where shipper_id=7;
 insert into shippers values(7,'Correios','3003-0100');
-
-
-
+```
 
 ## 7. BENCHMARKING COCKROACHDB DOCS X SQL SERVER
 
 Não foi encontrado na literatura um benchmarking entre o CockroachDB e SQL Server. Nos benckmarking encontrados entre alguns outros sistemas NewSQL e o CockroachDB este ficou nas últimas posições.
 
-
-
 ## 8. CONCLUSÃO
 
 
 ## REFERÊNCIAS
+
 COCKROACH LABS (EUA). CockroachDB   Docs. New York: Cockroach Labs, 2020. Disponível em: https://www.cockroachlabs.com/docs/stable/. Acesso em: 21  dez. 2020.
 KNOB, Ronan; SCHREINER, Geomar; FROZZA, Angelo; MELLO, Ronaldo dos Santos. Uma Análise de Soluções NewSQL. In: ESCOLA REGIONAL DE BANCO DE DADOS (ERBD), 15.2019, Chapecó. Anais [...]. Porto Alegre: Sociedade Brasileira de Computação, 2019 . p. 21-30. ISSN 2595-413X. DOI: https://doi.org/10.5753/erbd.2019.8475.
 MICROSOFT. Microsoft SQL documentation. [S. I.]: Microsoft, 2020. Disponível em: https://docs.microsoft.com/en-us/sql/?view=sql-server-ver15. Acesso em: 18 out. 2020.
@@ -1162,7 +1166,8 @@ MICROSOFT. Microsoft SQL documentation. [S. I.]: Microsoft, 2020. Disponível em
 
 
 
-ANEXOS
+##ANEXOS
+
 Anexo Código completo
 
 Anexo Glossário
